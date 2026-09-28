@@ -15,7 +15,7 @@
 (function () {
   "use strict";
 
-  var FIELDS = ["issuer", "clientId", "portalUrl", "scope"];
+  var FIELDS = ["issuer", "clientId", "portalUrl", "scope", "siblingUrl"];
 
   function slug(text) {
     return (
@@ -75,6 +75,7 @@
       clientId: el("cfg-client-id"),
       portalUrl: el("cfg-portal-url"),
       scope: el("cfg-scope"),
+      siblingUrl: el("cfg-sibling-url"),
     };
     var saveBtn = el("cfg-save");
     var resetBtn = el("cfg-reset");

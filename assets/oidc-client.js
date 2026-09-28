@@ -161,8 +161,18 @@
     return global.location.origin + global.location.pathname;
   }
 
-  /** Send the browser to the authorization endpoint. Does not return. */
-  async function beginLogin(options) {
+  /**
+   * Prepare an authorization request and return the URL to send the browser to.
+   *
+   * This is the static-site counterpart of a server's `/api/auth/sso/start`: it
+   * records the PKCE verifier, state and nonce for this tab, then hands back the
+   * authorization URL rather than navigating, so the caller decides when to go.
+   *
+   * `loginHint` is passed through as `login_hint` purely as a convenience for
+   * the sign-in screen. It is never trusted: who signed in is read from the
+   * verified ID token and nothing else.
+   */
+  async function startSso(options) {
     var verifier = randomUrlSafe(32);
     var tx = {
       state: randomUrlSafe(16),
@@ -170,8 +180,8 @@
       verifier: verifier,
       issuer: options.issuer,
       clientId: options.clientId,
-      redirectUri: redirectUriFor(),
-      returnTo: global.location.href,
+      redirectUri: options.redirectUri || redirectUriFor(),
+      returnTo: options.returnTo || global.location.href,
     };
     saveTx(tx);
 
@@ -184,8 +194,15 @@
     url.searchParams.set("nonce", tx.nonce);
     url.searchParams.set("code_challenge", await sha256B64url(verifier));
     url.searchParams.set("code_challenge_method", "S256");
+    if (options.loginHint) url.searchParams.set("login_hint", options.loginHint);
 
-    global.location.assign(url.toString());
+    return { authorizationUrl: url.toString() };
+  }
+
+  /** Send the browser to the authorization endpoint. Does not return. */
+  async function beginLogin(options) {
+    var started = await startSso(options);
+    global.location.assign(started.authorizationUrl);
   }
 
   /**
@@ -272,6 +289,7 @@
       expiresIn: payload.expires_in || 0,
       tokenType: payload.token_type || "Bearer",
       scope: payload.scope || "",
+      returnTo: tx.returnTo || "",
     };
   }
 
@@ -284,9 +302,14 @@
     return res.json();
   }
 
-  /** RP-initiated logout. Ends the CIAM session, not just this page. */
+  /**
+   * RP-initiated logout. Ends the CIAM session, not just this page.
+   *
+   * `endSessionEndpoint` is the discovery document's end_session_endpoint when
+   * the caller has it; otherwise the Anugal default path is used.
+   */
   function logout(options) {
-    var url = new URL(options.issuer + "/oauth/logout");
+    var url = new URL(options.endSessionEndpoint || options.issuer + "/oauth/logout");
     url.searchParams.set("client_id", options.clientId);
     if (options.postLogoutRedirectUri) {
       // Honoured only when it exactly matches a registered post-logout URI;
@@ -311,6 +334,7 @@
   }
 
   global.CiamOidc = {
+    startSso: startSso,
     beginLogin: beginLogin,
     completeLogin: completeLogin,
     fetchUserInfo: fetchUserInfo,
