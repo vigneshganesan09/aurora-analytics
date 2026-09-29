@@ -33,8 +33,16 @@
             <input type="text" id="cfg-issuer" autocomplete="off" spellcheck="false" />
           </label>
           <label>
+            <span>Token issuer (iss) — only if it differs</span>
+            <input type="text" id="cfg-token-issuer" autocomplete="off" spellcheck="false" />
+          </label>
+          <label>
             <span>Client ID</span>
             <input type="text" id="cfg-client-id" autocomplete="off" spellcheck="false" />
+          </label>
+          <label>
+            <span>Sign-out URL (CIAM end-session)</span>
+            <input type="text" id="cfg-end-session-url" autocomplete="off" spellcheck="false" />
           </label>
           <label>
             <span>Portal URL</span>
@@ -69,6 +77,10 @@
             <tr>
               <td class="k">Post-logout redirect URI</td>
               <td class="v" id="uri-logout"></td>
+            </tr>
+            <tr>
+              <td class="k">Sign-out goes to</td>
+              <td class="v" id="uri-end-session"></td>
             </tr>
             <tr>
               <td class="k">Launch URL (auto-starts SSO)</td>

@@ -11,8 +11,13 @@
 
     el("uri-callback").textContent = shell.routes.callback;
     el("uri-logout").textContent = shell.routes.login;
+    el("uri-end-session").textContent =
+      shell.config.endSessionUrl ||
+      "Discovered from the issuer (end_session_endpoint), else " +
+        (shell.config.issuer || "{issuer}") +
+        "/oauth/logout";
     var launch = new URL(shell.routes.login);
-    if (shell.config.issuer) launch.searchParams.set("iss", shell.config.issuer);
+    if (shell.tokenIssuer()) launch.searchParams.set("iss", shell.tokenIssuer());
     el("uri-launch").textContent = launch.toString();
 
     el("test-issuer").addEventListener("click", function () {
@@ -21,11 +26,13 @@
       status.textContent = "Checking " + shell.config.issuer + "…";
       window.CiamOidc.discover(shell.config.issuer)
         .then(function (doc) {
-          var ok = doc.issuer === shell.config.issuer;
+          var ok = doc.issuer === shell.tokenIssuer();
           status.className = ok ? "verify ok" : "verify err";
           status.textContent = ok
             ? "✓ Discovery answered and its issuer matches the configuration."
-            : "Discovery answered, but it names its issuer as " + doc.issuer + ".";
+            : "Discovery answered, but it names its issuer as " +
+              doc.issuer +
+              ". Fix the server's issuer setting, or enter that value as Token issuer (iss) above.";
         })
         .catch(function (error) {
           status.className = "verify err";

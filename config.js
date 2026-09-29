@@ -22,7 +22,19 @@ window.CIAM_CONFIG = {
    * starts SSO automatically only when <value> equals this (a trailing slash
    * is ignored).
    */
-  issuer: "https://dev.anugalid.com:4000/anugal-core/api",
+  issuer: "http://localhost:4000/anugal-core/api",
+
+  /*
+   * Optional. The `iss` value the server writes into its ID tokens and CIAM
+   * launch links, when that differs from `issuer` above. Leave empty normally.
+   *
+   * Only for a server whose own issuer setting has not been updated — e.g. it
+   * is reached at https://dev.example.com:4000/anugal-core/api but still names
+   * itself http://localhost:4000/anugal-core/api. Requests still go to
+   * `issuer`; tokens must carry exactly this value or they are rejected.
+   * The real fix is the server's issuer setting — clear this once it is done.
+   */
+  tokenIssuer: "",
 
   /*
    * The OAuth client id this application authenticates as.
@@ -42,10 +54,20 @@ window.CIAM_CONFIG = {
    * authorization endpoint with "Unknown or disabled client_id", which reads
    * like a server fault; empty fails here instead, naming this file.
    */
-  clientId: "local-aurora-analytics",
+  clientId: "",
+
+  /*
+   * The CIAM sign-out (end-session) URL. "Sign out" sends the browser here
+   * with id_token_hint, client_id and post_logout_redirect_uri, ending the
+   * Anugal session for every application signed in through it.
+   *
+   * Leave empty to use the issuer's advertised end_session_endpoint, falling
+   * back to {issuer}/oauth/logout.
+   */
+  endSessionUrl: "",
 
   /** Where "Return to sign-in" sends someone whose session has ended. */
-  portalUrl: "https://vigneshganesan09.github.io/aurora-analytics/auth/callback/",
+  portalUrl: "http://localhost:5173/ciam-login",
 
   /** Scopes to request. The server intersects this with what the client is allowed. */
   scope: "openid profile email",

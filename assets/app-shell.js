@@ -100,9 +100,14 @@
     return String(value || "").trim().replace(/\/+$/, "");
   }
 
+  /** The `iss` value tokens and launches carry: `tokenIssuer` if set, else `issuer`. */
+  function tokenIssuer() {
+    return config.tokenIssuer || config.issuer || "";
+  }
+
   /** True when a launch's `iss` names the CIAM issuer this app is configured for. */
   function issuerMatches(iss) {
-    return !!iss && !!config.issuer && normaliseIssuer(iss) === normaliseIssuer(config.issuer);
+    return !!iss && !!tokenIssuer() && normaliseIssuer(iss) === normaliseIssuer(tokenIssuer());
   }
 
   /* ---- session ------------------------------------------------------------ */
@@ -170,6 +175,7 @@
     options = options || {};
     return window.CiamOidc.startSso({
       issuer: config.issuer,
+      tokenIssuer: config.tokenIssuer,
       clientId: clientId,
       scope: config.scope,
       redirectUri: routes.callback,
@@ -180,7 +186,14 @@
     });
   }
 
+  /*
+   * Where sign-out sends the browser: `endSessionUrl` from the configuration
+   * when set, otherwise the issuer's advertised end_session_endpoint, otherwise
+   * {issuer}/oauth/logout.
+   */
   function discoverEndSession() {
+    if (config.endSessionUrl) return Promise.resolve(config.endSessionUrl);
+
     // Prefer what the issuer advertises; give up quickly and fall back to the
     // Anugal default so a slow discovery call never strands someone signing out.
     var timeout = new Promise(function (resolve) {
@@ -358,6 +371,7 @@
     el: el,
     addRow: addRow,
     misconfigured: misconfigured,
+    tokenIssuer: tokenIssuer,
     issuerMatches: issuerMatches,
     getSession: getSession,
     saveSession: saveSession,

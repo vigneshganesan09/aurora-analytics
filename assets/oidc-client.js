@@ -179,6 +179,9 @@
       nonce: randomUrlSafe(16),
       verifier: verifier,
       issuer: options.issuer,
+      // The `iss` the server writes into its responses and tokens. Normally the
+      // same as `issuer`; it differs only when explicitly configured to.
+      tokenIssuer: options.tokenIssuer || options.issuer,
       clientId: options.clientId,
       redirectUri: options.redirectUri || redirectUriFor(),
       returnTo: options.returnTo || global.location.href,
@@ -240,7 +243,8 @@
      * signature would then verify against the attacker's key.
      */
     var responseIss = query.get("iss");
-    if (responseIss && responseIss !== tx.issuer) {
+    var expectedIss = tx.tokenIssuer || tx.issuer;
+    if (responseIss && responseIss !== expectedIss) {
       throw new Error("Response came from an unexpected issuer: " + responseIss);
     }
 
@@ -271,7 +275,7 @@
     var jwt = decodeJwt(payload.id_token);
     await verifySignature(jwt, tx.issuer);
     verifyClaims(jwt.claims, {
-      issuer: tx.issuer,
+      issuer: expectedIss,
       clientId: tx.clientId,
       nonce: tx.nonce,
     });
