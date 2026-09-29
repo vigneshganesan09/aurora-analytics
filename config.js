@@ -42,10 +42,10 @@ window.CIAM_CONFIG = {
    * authorization endpoint with "Unknown or disabled client_id", which reads
    * like a server fault; empty fails here instead, naming this file.
    */
-  clientId: "ciam_35a1d1ce7b6a4d7a67240236dc7ded4d",
+  clientId: "local-aurora-analytics",
 
   /** Where "Return to sign-in" sends someone whose session has ended. */
-  portalUrl: "http://dev.anugalid.com:4000/ciam-login",
+  portalUrl: "https://vigneshganesan09.github.io/aurora-analytics/auth/callback/",
 
   /** Scopes to request. The server intersects this with what the client is allowed. */
   scope: "openid profile email",
