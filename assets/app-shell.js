@@ -188,7 +188,16 @@
     });
     var lookup = window.CiamOidc.discover(config.issuer)
       .then(function (doc) {
-        return (doc && doc.end_session_endpoint) || "";
+        var endpoint = (doc && doc.end_session_endpoint) || "";
+        // Only follow an endpoint on the configured issuer's own host. A server
+        // whose issuer is misconfigured (e.g. still "localhost") advertises
+        // URLs the browser cannot reach; the default path is safer then.
+        try {
+          if (new URL(endpoint).origin === new URL(config.issuer).origin) return endpoint;
+        } catch (e) {
+          /* missing or malformed — fall back */
+        }
+        return "";
       })
       .catch(function () {
         return "";
