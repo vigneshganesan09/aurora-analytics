@@ -22,7 +22,7 @@ window.CIAM_CONFIG = {
    * starts SSO automatically only when <value> equals this (a trailing slash
    * is ignored).
    */
-  issuer: "http://localhost:4000/anugal-core/api",
+  issuer: "https://dev.anugalid.com:4000/anugal-core/api",
 
   /*
    * The OAuth client id this application authenticates as.
@@ -42,10 +42,10 @@ window.CIAM_CONFIG = {
    * authorization endpoint with "Unknown or disabled client_id", which reads
    * like a server fault; empty fails here instead, naming this file.
    */
-  clientId: "",
+  clientId: "ciam_35a1d1ce7b6a4d7a67240236dc7ded4d",
 
   /** Where "Return to sign-in" sends someone whose session has ended. */
-  portalUrl: "http://localhost:5173/ciam-login",
+  portalUrl: "http://dev.anugalid.com:4000/ciam-login",
 
   /** Scopes to request. The server intersects this with what the client is allowed. */
   scope: "openid profile email",
